@@ -1,5 +1,6 @@
 // Require the necessary discord.js classes
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageEmbed } = require('discord.js');
+const Discord = require('discord.js');
 const { token } = require('./config.json');
 const {
   joinVoiceChannel,
@@ -28,7 +29,7 @@ const greeting = ['Здарова', 'Привет', 'Здарова мужичк
 
 const player = createAudioPlayer();
 
-const gayCheck = schedule.scheduleJob('*/2 * * * *', function(){
+const gayCheck = schedule.scheduleJob('*/2 * * * *', function(){ 
   gayAnnouncement();
 });
 
@@ -39,23 +40,35 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
-function addParticipant(participant) {
-  console.log(participant);
-  let participantData = {
-    id: participant.id,
-    username: participant.username,
-    counter: 0
-  }
-  return db.collection('gay-game').doc(`${new Date().getTime()}`).set(participantData).then(() => {
-    console.log('new participant added')
-  });
+function addParticipant(participant, message) {
+  db.collection('gay-game').get()
+    .then(doc => {
+      participants = doc.docs.map(doc => doc.data());
+      if (!!participants.find(user => user.id === participant.id)) {
+        message.reply(`${participant.username} you already registered gay4ik`)
+      } else {
+        let participantData = {
+          id: participant.id,
+          username: participant.username,
+          counter: 0
+        }
+
+        return db.collection('gay-game').doc(`${new Date().getTime()}`).set(participantData).then(() => {
+          console.log('new participant added')
+
+          message.reply(`${participant.username} welcome to gay bar`)
+        });
+      }
+    });
 }
 
 async function gayAnnouncement() {
-  let targetGuild = client.guilds.cache.get('914188466198294610')
-  let randomChannel = targetGuild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE').random();
+  let targetGuild = client.guilds.cache.get('914188466198294610');
+  let voiceChannels = targetGuild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
+  let randomActiveVoiceChannels = voiceChannels.filter(channel => channel.members.size >= 1).random();
   let participants = [];
-  db.collection('gay-game').get()
+  if (randomActiveVoiceChannels) {
+    db.collection('gay-game').get()
     .then(doc => {
       participants = doc.docs.map(doc => doc.data());
       docs = doc.docs;
@@ -72,7 +85,7 @@ async function gayAnnouncement() {
               { params: { text: `${greetingOfTheDay}, ${gayOfTheDay.username} пидор` } }
             )
           ).data;
-          const connection = await connectToChannel(randomChannel);
+          const connection = await connectToChannel(randomActiveVoiceChannels);
           connection.subscribe(player);
           playSong(audioFileUrl)
 
@@ -90,7 +103,62 @@ async function gayAnnouncement() {
       })();
     })
     .catch(err => {
-      console.log('Error blyat', err);
+      console.log('Error', err);
+      process.exit();
+    })
+  } else {
+  const startTime = new Date(Date.now() + 5000);
+  const endTime = new Date(startTime.getTime() + 20000);
+  const job = schedule.scheduleJob({ start: startTime, end: endTime, rule: '*/1 * * * * *' }, function(){
+    let guild = client.guilds.cache.get('914188466198294610');
+    let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
+    let activeChannel = channels.filter(channel => channel.members.size >= 1).random();
+    if (activeChannel) {
+      console.log('gays here');
+      job.cancel();
+      gayAnnouncement();
+    } else {
+      console.log('no gays available');
+    }
+  });
+  }
+}
+
+function gayStatistics(message) {
+  let participants = []
+  db.collection('gay-game').get()
+    .then(doc => {
+      participants = doc.docs.map(doc => doc.data());
+      let dungeonMaster = '';
+      let biggestCountList = participants.filter(part => part.counter === Math.max.apply(Math, participants.map(function(p) { return p.counter; })));
+      biggestCountList.map((master, index, row) => {
+        if (index < 1) {
+          dungeonMaster += `${master.username}`
+        } else if (index + 1 === row.length) {
+          dungeonMaster += ` і ${master.username}`
+        } else {
+          dungeonMaster += `, ${master.username}`
+        }
+      })
+
+      const exampleEmbed = new MessageEmbed()
+      .setColor('#00ffcc')
+      .setTitle('Gay statistic')  
+      .setAuthor('Billy Herrington', 'https://cdn1.flamp.ru/bf30a0f028b9df436009080d4be10947.jpg')
+      .setDescription(`Ну шо гейочкі, вот ваша статискика. Наш${biggestCountList.length > 1 ? 'і' : ''} dungeon master${biggestCountList.length > 1 ? '`s' : ''} це ${dungeonMaster}`)
+      .setThumbnail('https://i1.sndcdn.com/artworks-000651764767-zbla7n-t500x500.jpg')
+      .setImage('https://icdn.lenta.ru/images/2021/01/29/17/20210129175240891/pwa_list_rect_1024_236f156af569cdf9641dca36419bcbfc.jpg')
+      .setTimestamp()
+      .setFooter('gayter')
+
+      participants.map((participant) => {
+        exampleEmbed.addField(`${participant.username}`, `You are gay ${participant.counter} times`, false);
+      })
+    
+      message.reply({ embeds: [exampleEmbed] });
+    })
+    .catch(err => {
+      console.log('Error', err);
       process.exit();
     })
 }
@@ -124,7 +192,6 @@ async function connectToChannel(channel) {
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
   console.log('Ready!');
-  gayAnnouncement();
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -150,7 +217,18 @@ client.on('messageCreate', async (message) => {
   const cmd = args[0].slice(prefix.length).toLowerCase();
 
   if (cmd === 'iamgay') {
-    addParticipant(message.member.user);
+    addParticipant(message.member.user, message);
+  }
+});
+
+client.on('messageCreate', async (message) => {
+  if (!message.content.startsWith(prefix)) return;
+
+  const args = message.content.trim().split(/:+/g);
+  const cmd = args[0].slice(prefix.length).toLowerCase();
+
+  if (cmd === 'gaystats') {
+    gayStatistics(message);
   }
 });
 
