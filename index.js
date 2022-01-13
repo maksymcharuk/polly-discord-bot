@@ -1,5 +1,8 @@
 // Require the necessary discord.js classes
 require('dotenv').config();
+
+console.log(new Date());
+
 const {
   Client,
   Intents,
