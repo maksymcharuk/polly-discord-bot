@@ -1,8 +1,5 @@
 // Require the necessary discord.js classes
 require('dotenv').config();
-
-console.log(new Date());
-
 const {
   Client,
   Intents,
@@ -50,7 +47,7 @@ const greeting = ['Здарова', 'Привет', 'Здарова мужичк
 
 const player = createAudioPlayer();
 
-const gayCheck = new CronJob('00 13 19 * * *', function () {
+const gayCheck = new CronJob('00 00 18 * * *', function () {
   const d = new Date();
   console.log('Time:', d);
   gayAnnouncement();
@@ -92,7 +89,7 @@ function addParticipant(participant, message) {
 }
 
 async function gayAnnouncement() {
-  let targetGuild = client.guilds.cache.get('914188466198294610');
+  let targetGuild = client.guilds.cache.get('660828078662090773');
   let voiceChannels = targetGuild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
   let randomActiveVoiceChannels = voiceChannels.filter(channel => channel.members.size >= 1).random();
   let participants = [];
@@ -149,7 +146,7 @@ async function gayAnnouncement() {
       end: endTime,
       rule: '* 5 * * * *'
     }, function () {
-      let guild = client.guilds.cache.get('914188466198294610');
+      let guild = client.guilds.cache.get('660828078662090773');
       let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
       let activeChannel = channels.filter(channel => channel.members.size >= 1).random();
       if (activeChannel) {
@@ -168,7 +165,7 @@ async function gayAnnouncement() {
 }
 
 function noGaysGayAnnouncement() {
-  let channel = client.guilds.cache.get('914188466198294610').channels.cache.get('914188466647072800');
+  let channel = client.guilds.cache.get('660828078662090773').channels.cache.get('931268837586915349');
   let participants = [];
 
   db.collection('gay-game').get()
@@ -201,7 +198,7 @@ function noGaysGayAnnouncement() {
 }
 
 function gayStatistics(message = null) {
-  let channel = client.guilds.cache.get('914188466198294610').channels.cache.get('914188466647072800');
+  let channel = client.guilds.cache.get('660828078662090773').channels.cache.get('931268837586915349');
   let participants = []
   db.collection('gay-game').get()
     .then(doc => {
