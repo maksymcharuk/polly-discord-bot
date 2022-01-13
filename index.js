@@ -50,7 +50,7 @@ const greeting = ['Здарова', 'Привет', 'Здарова мужичк
 
 const player = createAudioPlayer();
 
-const gayCheck = new CronJob('00 06 21 * * *', function () {
+const gayCheck = new CronJob('00 13 19 * * *', function () {
   const d = new Date();
   console.log('Time:', d);
   gayAnnouncement();
