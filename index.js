@@ -16,6 +16,7 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./firebase.json');
 const schedule = require('node-schedule');
 const { createDiscordJSAdapter } = require('./adapter');
+const CronJob = require('cron').CronJob;
 
 // Create a new client instance
 const client = new Client({
@@ -29,11 +30,19 @@ const greeting = ['Здарова', 'Привет', 'Здарова мужичк
 
 const player = createAudioPlayer();
 
-const gayCheck = schedule.scheduleJob('*/2 * * * *', function(){ 
+const gayCheck = new CronJob('00 00 20 * * *', function() {
+	const d = new Date();
+	console.log('Time:', d);
   gayAnnouncement();
 });
 
-gayCheck.schedule();
+gayCheck.start();
+
+// const gayCheck = schedule.scheduleJob('* * * * *', function(){ 
+//   gayAnnouncement();
+// });
+
+// gayCheck.schedule();
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -91,6 +100,7 @@ async function gayAnnouncement() {
 
           db.collection("gay-game").doc(gayOfTheDayData.id).update({counter: ++gayOfTheDay.counter})
           .then(function() {
+            gayStatistics();
             console.log("gay updated");
           });
 
@@ -108,8 +118,8 @@ async function gayAnnouncement() {
     })
   } else {
   const startTime = new Date(Date.now() + 5000);
-  const endTime = new Date(startTime.getTime() + 20000);
-  const job = schedule.scheduleJob({ start: startTime, end: endTime, rule: '*/1 * * * * *' }, function(){
+  const endTime = new Date(startTime.getTime() + 1800000);
+  const job = schedule.scheduleJob({ start: startTime, end: endTime, rule: '* 5 * * * *' }, function(){
     let guild = client.guilds.cache.get('914188466198294610');
     let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
     let activeChannel = channels.filter(channel => channel.members.size >= 1).random();
@@ -120,11 +130,47 @@ async function gayAnnouncement() {
     } else {
       console.log('no gays available');
     }
+
+    if (this.nextInvocation() === null) {
+      noGaysGayAnnouncement();
+    }
   });
   }
 }
 
-function gayStatistics(message) {
+function noGaysGayAnnouncement() {
+  let channel = client.guilds.cache.get('914188466198294610').channels.cache.get('914188466647072800');
+  let participants = [];
+
+  db.collection('gay-game').get()
+  .then(doc => {
+    participants = doc.docs.map(doc => doc.data());
+    docs = doc.docs;
+    
+    (async ()=>{
+      try {
+        const gayOfTheDay = participants[Math.floor(Math.random()*participants.length)];
+        const gayOfTheDayData = docs.find(doc => doc.data().id === gayOfTheDay.id);
+        
+        db.collection("gay-game").doc(gayOfTheDayData.id).update({counter: ++gayOfTheDay.counter})
+        .then(function() {
+          channel.send(`No gays available ;( but gay of the day is ${gayOfTheDay.username}. CUMGRATULATIONS!`)
+          gayStatistics();
+          console.log("gay updated");
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  })
+  .catch(err => {
+    console.log('Error', err);
+    process.exit();
+  })
+}
+
+function gayStatistics(message = null) {
+  let channel = client.guilds.cache.get('914188466198294610').channels.cache.get('914188466647072800');
   let participants = []
   db.collection('gay-game').get()
     .then(doc => {
@@ -149,13 +195,16 @@ function gayStatistics(message) {
       .setThumbnail('https://i1.sndcdn.com/artworks-000651764767-zbla7n-t500x500.jpg')
       .setImage('https://icdn.lenta.ru/images/2021/01/29/17/20210129175240891/pwa_list_rect_1024_236f156af569cdf9641dca36419bcbfc.jpg')
       .setTimestamp()
-      .setFooter('gayter')
 
       participants.map((participant) => {
         exampleEmbed.addField(`${participant.username}`, `You are gay ${participant.counter} times`, false);
       })
     
-      message.reply({ embeds: [exampleEmbed] });
+      if (message) {
+        message.reply({ embeds: [exampleEmbed] });
+      } else {
+        channel.send({ embeds: [exampleEmbed] })
+      }
     })
     .catch(err => {
       console.log('Error', err);
