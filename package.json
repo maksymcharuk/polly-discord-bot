@@ -9,6 +9,9 @@
   },
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "16.13.0"
+  },
   "dependencies": {
     "@discordjs/builders": "^0.8.2",
     "@discordjs/opus": "^0.7.0",
