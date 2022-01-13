@@ -18,16 +18,16 @@ const {
 const axios = require('axios').default;
 const admin = require('firebase-admin');
 const serviceAccount = {
-  type: "service_account",
-  project_id: "gay-b-20005",
-  private_key_id: "18abac7b3246cc160122ad245b7d01f2857d4b87",
-  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDHu/3LsLA/qwhT\nK4Zs7cReTxwTP766uUUNreKZlOhcgL6E/0avorgZThZPFnmylao61iYA/w6KwvbS\nUizW0yWkXndvt5EwFWcd9UIstagP0xcjcsX2GKpGBpP525Z04x+5ksR+GvHNBAk9\n98MLJ22kwOc5ramXtJXxwtTggSmF7QK+gbgYFUUvzVNnXuW0qbFupyMr2gXQyl1e\nL44Y0rvFYP4Z48gPqEVSsI9Ty25LBg6UmN5NtkDCFxfxooNEH/52LmsnNw+RgZ1l\ngHqdm9Ek9rZP59EkMm3DKXyt/tF8cKktsifEzNg2+BIlzn3YZ04stLL1FAE4BIpJ\nLdm617pJAgMBAAECggEALx0eEcUc3ffXH989d0ZisqhQhA3eTKdVLZPdxsKESQWp\nay/YGaf1ayqrQn6XuFNrczN+hW+km4C/vf7aStZFo88Qt06Ctefmif+HW4qCGTF+\n3MK/BXzt9VSp5R8yD2Jf4mNHbEOo0+Zm07I01NW5HErQgB+ByKI1WHDPzCFLjSZf\nQRN8yjrlsihLMZ/hjSKCKrXOlNRJD8txk03VsJlYxkCO8XqXztI52F1z7O7f5GET\n9pi09AnbvsrIeZ9i2IcP/+H7W2BA+J9wNZDTcOm3tnAqHZBCPGE1N3TQADGvG91b\n9Wb0pzqcAyQ3aBCOKAJ9Hmo2r7UQWRhht7LO1tdQvQKBgQDxAhYXig1NL0AyuR/8\njxjpPQ3+2uZMepdJr1cbAHuk6TG/Jfv07yKQLKcUuT8X585GERWFNdYKqMRR716w\nJ+JR6R2Y6bw4NZYuSmFPjsaPtOlkKOQ81Pk6MbK1ww0fDRVfGH4kDHwH0Y22+wF/\nKar5a8lxQ4YBjT789aT6pJSeLwKBgQDUKKTTz/6Y2Q5WyIZuH2u7gVWwPLOSlcxA\nCOAEgCudAI+r0S/jh/R/xCE4luRKRy6z5ulIKBuQ0ey6C71RLrkrVbTG9Pho0tRr\nIamPN3wrXFkGFKBSihYvEclSGpefXYwC+noUJPYHS+SPMZ/EGcjyloDj9zW7vFAp\naz1h4hRJBwKBgQDJXnri9CAlC4PSXceSGGYyCyd0d6XQ5OUfVferwf2NTqKYGb6p\nal0wpX583EMRUEeTV5bplI/gnB5cb2poOQrqcaKfLzxqoqt2xgMEnEDftcMEQv5g\nrXoH25p8MBr4hNAEgsxyhlPjnH2SE6uuejw25o6LqmV/SmsEpKJSIc1jVQKBgQCX\nlJJvY2QcALjl+E9Tzs9CIJ4AVN5YFP7hoXWswYZnnkcIE2WLw09FGfRCYkypZUJQ\n9uIl08IeLl5cbpbMsf1KoOmQXOY+vqNWB68FzDbDJC/W0FXbox1GdAbKyoUaL9Qh\nLKScT+wYOnkKdgIYMfQIns9oEPArOdhsP1qT3NtxcQKBgQCcNgOn6491faTFHzeE\nFx/NnvM/6/AjPMpnLjXsCeGk2nK00vF/ZIn1E/tDmO9+T4CBPdpwryW9tr7zR9Rg\nQpRJxgtWdbhF51zxT7dE93DieNE7E95Ks5ZWStL094tGm9H83WkaKYO7ZaxXOFnM\nkB+F5gYTjpuIYzYJbXcRH7ddQw==\n-----END PRIVATE KEY-----\n",
-  client_email: "firebase-adminsdk-mxtii@gay-b-20005.iam.gserviceaccount.com",
-  client_id: "117339084135905022121",
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-mxtii%40gay-b-20005.iam.gserviceaccount.com"
+  type: process.env.type,
+  project_id: process.env.project_id,
+  private_key_id: process.env.private_key_id,
+  private_key: process.env.private_key,
+  client_email: process.env.client_email,
+  client_id: process.env.client_id,
+  auth_uri: process.env.auth_uri,
+  token_uri: process.env.token_uri,
+  auth_provider_x509_cert_url: process.env.auth_provider_x509_cert_url,
+  client_x509_cert_url: process.env.client_x509_cert_url
 }
 const schedule = require('node-schedule');
 const {
