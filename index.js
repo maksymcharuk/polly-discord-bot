@@ -1,7 +1,11 @@
 // Require the necessary discord.js classes
-const { Client, Intents, MessageEmbed } = require('discord.js');
+require('dotenv').config();
+const {
+  Client,
+  Intents,
+  MessageEmbed
+} = require('discord.js');
 const Discord = require('discord.js');
-const { token } = require('./config.json');
 const {
   joinVoiceChannel,
   createAudioPlayer,
@@ -13,9 +17,22 @@ const {
 } = require('@discordjs/voice');
 const axios = require('axios').default;
 const admin = require('firebase-admin');
-const serviceAccount = require('./firebase.json');
+const serviceAccount = {
+  type: "service_account",
+  project_id: "gay-b-20005",
+  private_key_id: "18abac7b3246cc160122ad245b7d01f2857d4b87",
+  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDHu/3LsLA/qwhT\nK4Zs7cReTxwTP766uUUNreKZlOhcgL6E/0avorgZThZPFnmylao61iYA/w6KwvbS\nUizW0yWkXndvt5EwFWcd9UIstagP0xcjcsX2GKpGBpP525Z04x+5ksR+GvHNBAk9\n98MLJ22kwOc5ramXtJXxwtTggSmF7QK+gbgYFUUvzVNnXuW0qbFupyMr2gXQyl1e\nL44Y0rvFYP4Z48gPqEVSsI9Ty25LBg6UmN5NtkDCFxfxooNEH/52LmsnNw+RgZ1l\ngHqdm9Ek9rZP59EkMm3DKXyt/tF8cKktsifEzNg2+BIlzn3YZ04stLL1FAE4BIpJ\nLdm617pJAgMBAAECggEALx0eEcUc3ffXH989d0ZisqhQhA3eTKdVLZPdxsKESQWp\nay/YGaf1ayqrQn6XuFNrczN+hW+km4C/vf7aStZFo88Qt06Ctefmif+HW4qCGTF+\n3MK/BXzt9VSp5R8yD2Jf4mNHbEOo0+Zm07I01NW5HErQgB+ByKI1WHDPzCFLjSZf\nQRN8yjrlsihLMZ/hjSKCKrXOlNRJD8txk03VsJlYxkCO8XqXztI52F1z7O7f5GET\n9pi09AnbvsrIeZ9i2IcP/+H7W2BA+J9wNZDTcOm3tnAqHZBCPGE1N3TQADGvG91b\n9Wb0pzqcAyQ3aBCOKAJ9Hmo2r7UQWRhht7LO1tdQvQKBgQDxAhYXig1NL0AyuR/8\njxjpPQ3+2uZMepdJr1cbAHuk6TG/Jfv07yKQLKcUuT8X585GERWFNdYKqMRR716w\nJ+JR6R2Y6bw4NZYuSmFPjsaPtOlkKOQ81Pk6MbK1ww0fDRVfGH4kDHwH0Y22+wF/\nKar5a8lxQ4YBjT789aT6pJSeLwKBgQDUKKTTz/6Y2Q5WyIZuH2u7gVWwPLOSlcxA\nCOAEgCudAI+r0S/jh/R/xCE4luRKRy6z5ulIKBuQ0ey6C71RLrkrVbTG9Pho0tRr\nIamPN3wrXFkGFKBSihYvEclSGpefXYwC+noUJPYHS+SPMZ/EGcjyloDj9zW7vFAp\naz1h4hRJBwKBgQDJXnri9CAlC4PSXceSGGYyCyd0d6XQ5OUfVferwf2NTqKYGb6p\nal0wpX583EMRUEeTV5bplI/gnB5cb2poOQrqcaKfLzxqoqt2xgMEnEDftcMEQv5g\nrXoH25p8MBr4hNAEgsxyhlPjnH2SE6uuejw25o6LqmV/SmsEpKJSIc1jVQKBgQCX\nlJJvY2QcALjl+E9Tzs9CIJ4AVN5YFP7hoXWswYZnnkcIE2WLw09FGfRCYkypZUJQ\n9uIl08IeLl5cbpbMsf1KoOmQXOY+vqNWB68FzDbDJC/W0FXbox1GdAbKyoUaL9Qh\nLKScT+wYOnkKdgIYMfQIns9oEPArOdhsP1qT3NtxcQKBgQCcNgOn6491faTFHzeE\nFx/NnvM/6/AjPMpnLjXsCeGk2nK00vF/ZIn1E/tDmO9+T4CBPdpwryW9tr7zR9Rg\nQpRJxgtWdbhF51zxT7dE93DieNE7E95Ks5ZWStL094tGm9H83WkaKYO7ZaxXOFnM\nkB+F5gYTjpuIYzYJbXcRH7ddQw==\n-----END PRIVATE KEY-----\n",
+  client_email: "firebase-adminsdk-mxtii@gay-b-20005.iam.gserviceaccount.com",
+  client_id: "117339084135905022121",
+  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+  token_uri: "https://oauth2.googleapis.com/token",
+  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-mxtii%40gay-b-20005.iam.gserviceaccount.com"
+}
 const schedule = require('node-schedule');
-const { createDiscordJSAdapter } = require('./adapter');
+const {
+  createDiscordJSAdapter
+} = require('./adapter');
 const CronJob = require('cron').CronJob;
 
 // Create a new client instance
@@ -30,9 +47,9 @@ const greeting = ['Здарова', 'Привет', 'Здарова мужичк
 
 const player = createAudioPlayer();
 
-const gayCheck = new CronJob('00 00 20 * * *', function() {
-	const d = new Date();
-	console.log('Time:', d);
+const gayCheck = new CronJob('00 00 20 * * *', function () {
+  const d = new Date();
+  console.log('Time:', d);
   gayAnnouncement();
 });
 
@@ -78,35 +95,97 @@ async function gayAnnouncement() {
   let participants = [];
   if (randomActiveVoiceChannels) {
     db.collection('gay-game').get()
+      .then(doc => {
+        participants = doc.docs.map(doc => doc.data());
+        docs = doc.docs;
+
+        (async () => {
+          try {
+            const gayOfTheDay = participants[Math.floor(Math.random() * participants.length)];
+            const gayOfTheDayData = docs.find(doc => doc.data().id === gayOfTheDay.id);
+            const greetingOfTheDay = greeting[Math.floor(Math.random() * greeting.length)];
+
+            const audioFileUrl = (
+              await axios.get(
+                `http://ec2-16-170-224-19.eu-north-1.compute.amazonaws.com:3000/speak`, {
+                  params: {
+                    text: `${greetingOfTheDay}, ${gayOfTheDay.username} пидор`
+                  }
+                }
+              )
+            ).data;
+            const connection = await connectToChannel(randomActiveVoiceChannels);
+            connection.subscribe(player);
+            playSong(audioFileUrl)
+
+            db.collection("gay-game").doc(gayOfTheDayData.id).update({
+                counter: ++gayOfTheDay.counter
+              })
+              .then(function () {
+                gayStatistics();
+                console.log("gay updated");
+              });
+
+            setTimeout(() => {
+              connection.destroy();
+            }, 8000);
+          } catch (error) {
+            console.error(error);
+          }
+        })();
+      })
+      .catch(err => {
+        console.log('Error', err);
+        process.exit();
+      })
+  } else {
+    const startTime = new Date(Date.now() + 5000);
+    const endTime = new Date(startTime.getTime() + 1800000);
+    const job = schedule.scheduleJob({
+      start: startTime,
+      end: endTime,
+      rule: '* 5 * * * *'
+    }, function () {
+      let guild = client.guilds.cache.get('914188466198294610');
+      let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
+      let activeChannel = channels.filter(channel => channel.members.size >= 1).random();
+      if (activeChannel) {
+        console.log('gays here');
+        job.cancel();
+        gayAnnouncement();
+      } else {
+        console.log('no gays available');
+      }
+
+      if (this.nextInvocation() === null) {
+        noGaysGayAnnouncement();
+      }
+    });
+  }
+}
+
+function noGaysGayAnnouncement() {
+  let channel = client.guilds.cache.get('914188466198294610').channels.cache.get('914188466647072800');
+  let participants = [];
+
+  db.collection('gay-game').get()
     .then(doc => {
       participants = doc.docs.map(doc => doc.data());
       docs = doc.docs;
-      
-      (async ()=>{
+
+      (async () => {
         try {
-          const gayOfTheDay = participants[Math.floor(Math.random()*participants.length)];
+          const gayOfTheDay = participants[Math.floor(Math.random() * participants.length)];
           const gayOfTheDayData = docs.find(doc => doc.data().id === gayOfTheDay.id);
-          const greetingOfTheDay = greeting[Math.floor(Math.random()*greeting.length)];
 
-          const audioFileUrl = (
-            await axios.get(
-              `http://ec2-16-170-224-19.eu-north-1.compute.amazonaws.com:3000/speak`,
-              { params: { text: `${greetingOfTheDay}, ${gayOfTheDay.username} пидор` } }
-            )
-          ).data;
-          const connection = await connectToChannel(randomActiveVoiceChannels);
-          connection.subscribe(player);
-          playSong(audioFileUrl)
-
-          db.collection("gay-game").doc(gayOfTheDayData.id).update({counter: ++gayOfTheDay.counter})
-          .then(function() {
-            gayStatistics();
-            console.log("gay updated");
-          });
-
-          setTimeout(() => {
-            connection.destroy();
-          }, 8000);
+          db.collection("gay-game").doc(gayOfTheDayData.id).update({
+              counter: ++gayOfTheDay.counter
+            })
+            .then(function () {
+              channel.send(`No gays available ;( but gay of the day is ${gayOfTheDay.username}. CUMGRATULATIONS!`)
+              gayStatistics();
+              console.log("gay updated");
+            });
         } catch (error) {
           console.error(error);
         }
@@ -116,57 +195,6 @@ async function gayAnnouncement() {
       console.log('Error', err);
       process.exit();
     })
-  } else {
-  const startTime = new Date(Date.now() + 5000);
-  const endTime = new Date(startTime.getTime() + 1800000);
-  const job = schedule.scheduleJob({ start: startTime, end: endTime, rule: '* 5 * * * *' }, function(){
-    let guild = client.guilds.cache.get('914188466198294610');
-    let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
-    let activeChannel = channels.filter(channel => channel.members.size >= 1).random();
-    if (activeChannel) {
-      console.log('gays here');
-      job.cancel();
-      gayAnnouncement();
-    } else {
-      console.log('no gays available');
-    }
-
-    if (this.nextInvocation() === null) {
-      noGaysGayAnnouncement();
-    }
-  });
-  }
-}
-
-function noGaysGayAnnouncement() {
-  let channel = client.guilds.cache.get('914188466198294610').channels.cache.get('914188466647072800');
-  let participants = [];
-
-  db.collection('gay-game').get()
-  .then(doc => {
-    participants = doc.docs.map(doc => doc.data());
-    docs = doc.docs;
-    
-    (async ()=>{
-      try {
-        const gayOfTheDay = participants[Math.floor(Math.random()*participants.length)];
-        const gayOfTheDayData = docs.find(doc => doc.data().id === gayOfTheDay.id);
-        
-        db.collection("gay-game").doc(gayOfTheDayData.id).update({counter: ++gayOfTheDay.counter})
-        .then(function() {
-          channel.send(`No gays available ;( but gay of the day is ${gayOfTheDay.username}. CUMGRATULATIONS!`)
-          gayStatistics();
-          console.log("gay updated");
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-  })
-  .catch(err => {
-    console.log('Error', err);
-    process.exit();
-  })
 }
 
 function gayStatistics(message = null) {
@@ -174,24 +202,26 @@ function gayStatistics(message = null) {
   let participants = []
   db.collection('gay-game').get()
     .then(doc => {
-      participants = doc.docs.map(doc => doc.data());
-      let dungeonMaster = '';
-      let biggestCountList = participants.filter(part => part.counter === Math.max.apply(Math, participants.map(function(p) { return p.counter; })));
-      biggestCountList.map((master, index, row) => {
-        if (index < 1) {
-          dungeonMaster += `${master.username}`
-        } else if (index + 1 === row.length) {
-          dungeonMaster += ` і ${master.username}`
-        } else {
-          dungeonMaster += `, ${master.username}`
-        }
-      })
+        participants = doc.docs.map(doc => doc.data());
+        let dungeonMaster = '';
+        let biggestCountList = participants.filter(part => part.counter === Math.max.apply(Math, participants.map(function (p) {
+          return p.counter;
+        })));
+        biggestCountList.map((master, index, row) => {
+          if (index < 1) {
+            dungeonMaster += `${master.username}`
+          } else if (index + 1 === row.length) {
+            dungeonMaster += ` і ${master.username}`
+          } else {
+            dungeonMaster += `, ${master.username}`
+          }
+        })
 
-      const exampleEmbed = new MessageEmbed()
-      .setColor('#00ffcc')
-      .setTitle('Gay statistic')  
-      .setAuthor('Billy Herrington', 'https://cdn1.flamp.ru/bf30a0f028b9df436009080d4be10947.jpg')
-      .setDescription(`Ну шо гейочкі, вот ваша статискика. Наш${biggestCountList.length > 1 ? 'і' : ''} dungeon master${biggestCountList.length > 1 ? '`s' : ''} це ${dungeonMaster}`)
+        const exampleEmbed = new MessageEmbed()
+          .setColor('#00ffcc')
+          .setTitle('Gay statistic')
+          .setAuthor('Billy Herrington', 'https://cdn1.flamp.ru/bf30a0f028b9df436009080d4be10947.jpg')
+          .setDescription(`Ну шо гейочкі, вот ваша статискика. Наш${biggestCountList.length > 1 ? 'і' : ''} dungeon master${biggestCountList.length > 1 ? '`s' : ''} це ${dungeonMaster}`)
       .setThumbnail('https://i1.sndcdn.com/artworks-000651764767-zbla7n-t500x500.jpg')
       .setImage('https://icdn.lenta.ru/images/2021/01/29/17/20210129175240891/pwa_list_rect_1024_236f156af569cdf9641dca36419bcbfc.jpg')
       .setTimestamp()
@@ -299,20 +329,24 @@ client.on('messageCreate', async (message) => {
         connection.subscribe(player);
         const audioFileUrl = (
           await axios.get(
-            `http://ec2-16-170-224-19.eu-north-1.compute.amazonaws.com:3000/speak`,
-            { params: { text: args[1] } }
+            `
+            http: //ec2-16-170-224-19.eu-north-1.compute.amazonaws.com:3000/speak`,
+            {
+              params: {
+                text: args[1]
+              }
+            }
           )
-        ).data;
-        playSong(audioFileUrl);
-        message.reply('Playing now!');
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      message.reply('Join a voice channel then try again!');
+      ).data; playSong(audioFileUrl); message.reply('Playing now!');
     }
+  catch (error) {
+    console.error(error);
   }
+} else {
+  message.reply('Join a voice channel then try again!');
+}
+}
 });
 
 // Login to Discord with your client's token
-client.login(token);
+client.login(process.env.token);
