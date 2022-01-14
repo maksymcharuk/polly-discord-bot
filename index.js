@@ -89,7 +89,7 @@ function addParticipant(participant, message) {
 }
 
 async function gayAnnouncement() {
-  let targetGuild = client.guilds.cache.get('660828078662090773');
+  let targetGuild = client.guilds.cache.get(process.env.serverId);
   let voiceChannels = targetGuild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
   let randomActiveVoiceChannels = voiceChannels.filter(channel => channel.members.size >= 1).random();
   let participants = [];
@@ -146,7 +146,7 @@ async function gayAnnouncement() {
       end: endTime,
       rule: '* 5 * * * *'
     }, function () {
-      let guild = client.guilds.cache.get('660828078662090773');
+      let guild = client.guilds.cache.get(process.env.serverId);
       let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
       let activeChannel = channels.filter(channel => channel.members.size >= 1).random();
       if (activeChannel) {
@@ -165,7 +165,7 @@ async function gayAnnouncement() {
 }
 
 function noGaysGayAnnouncement() {
-  let channel = client.guilds.cache.get('660828078662090773').channels.cache.get('931268837586915349');
+  let channel = client.guilds.cache.get(process.env.serverId).channels.cache.get(process.env.defaultChannelId);
   let participants = [];
 
   db.collection('gay-game').get()
@@ -198,7 +198,7 @@ function noGaysGayAnnouncement() {
 }
 
 function gayStatistics(message = null) {
-  let channel = client.guilds.cache.get('660828078662090773').channels.cache.get('931268837586915349');
+  let channel = client.guilds.cache.get(process.env.serverId).channels.cache.get(process.env.defaultChannelId);
   let participants = []
   db.collection('gay-game').get()
     .then(doc => {
