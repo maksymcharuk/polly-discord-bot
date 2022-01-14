@@ -17,6 +17,9 @@ const {
 } = require('@discordjs/voice');
 const axios = require('axios').default;
 const admin = require('firebase-admin');
+const {
+  getStorage
+} = require('firebase-admin/storage');
 const serviceAccount = {
   type: process.env.type,
   project_id: process.env.project_id,
@@ -52,19 +55,14 @@ const gayCheck = new CronJob('00 00 18 * * *', function () {
   console.log('Time:', d);
   gayAnnouncement();
 });
-
 gayCheck.start();
 
-// const gayCheck = schedule.scheduleJob('* * * * *', function(){ 
-//   gayAnnouncement();
-// });
-
-// gayCheck.schedule();
-
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'gs://gay-b-20005.appspot.com'
 });
 const db = admin.firestore();
+const bucket = getStorage().bucket();
 
 function addParticipant(participant, message) {
   db.collection('gay-game').get()
@@ -139,12 +137,12 @@ async function gayAnnouncement() {
         process.exit();
       })
   } else {
-    const startTime = new Date(Date.now() + 5000);
+    const startTime = new Date(Date.now() + 30000);
     const endTime = new Date(startTime.getTime() + 1800000);
     const job = schedule.scheduleJob({
       start: startTime,
       end: endTime,
-      rule: '* 5 * * * *'
+      rule: '*/30 * * * * *'
     }, function () {
       let guild = client.guilds.cache.get(process.env.serverId);
       let channels = guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE');
@@ -221,7 +219,7 @@ function gayStatistics(message = null) {
           .setColor('#00ffcc')
           .setTitle('Gay statistic')
           .setAuthor('Billy Herrington', 'https://cdn1.flamp.ru/bf30a0f028b9df436009080d4be10947.jpg')
-          .setDescription(`Ну шо гейочкі, вот ваша статискика. Наш${biggestCountList.length > 1 ? 'і' : ''} dungeon master${biggestCountList.length > 1 ? '`s' : ''} це ${dungeonMaster}`)
+          .setDescription(`Ну шо гейочкі, вот ваша статистика. Наш${biggestCountList.length > 1 ? 'і' : ''} dungeon master${biggestCountList.length > 1 ? '`s' : ''} це ${dungeonMaster}`)
       .setThumbnail('https://i1.sndcdn.com/artworks-000651764767-zbla7n-t500x500.jpg')
       .setImage('https://icdn.lenta.ru/images/2021/01/29/17/20210129175240891/pwa_list_rect_1024_236f156af569cdf9641dca36419bcbfc.jpg')
       .setTimestamp()
@@ -246,7 +244,6 @@ function playSong(url) {
   const resource = createAudioResource(url, {
     inputType: StreamType.Arbitrary,
   });
-
   player.play(resource);
 
   return entersState(player, AudioPlayerStatus.Playing, 5e3);
@@ -268,23 +265,31 @@ async function connectToChannel(channel) {
   }
 }
 
+async function randomGachi(message) {
+  let voiceChannel = message.member.voice.channel;
+  bucket.getFiles({
+    versions: true
+  }, async function(err, files) {
+    let soundsUrls = [];
+    Object.values(files).forEach((data) => {
+      soundsUrls.push(`https://firebasestorage.googleapis.com/v0/b/${data.metadata.bucket}/o/${data.metadata.name}?alt=media&token=${data.metadata.metadata.firebaseStorageDownloadTokens}`);
+    })
+    let randomSoundUrl = soundsUrls[Math.floor(Math.random() * soundsUrls.length)];
+    const connection = await connectToChannel(voiceChannel);
+    connection.subscribe(player);
+    playSong(randomSoundUrl);
+
+    // player.on(AudioPlayerStatus.Idle, (status) => {
+    //   if (connection.state.status !== 'destroyed') {
+    //     connection.destroy();
+    //   }
+    // });
+  });
+}
+
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
   console.log('Ready!');
-});
-
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  const { commandName } = interaction;
-
-  if (commandName === 'ping') {
-    await interaction.reply('Pong!');
-  } else if (commandName === 'server') {
-    await interaction.reply('Server info.');
-  } else if (commandName === 'user') {
-    await interaction.reply('User info.');
-  }
 });
 
 const prefix = '!'; // just an example, change to whatever you want
@@ -298,54 +303,14 @@ client.on('messageCreate', async (message) => {
   if (cmd === 'iamgay') {
     addParticipant(message.member.user, message);
   }
-});
-
-client.on('messageCreate', async (message) => {
-  if (!message.content.startsWith(prefix)) return;
-
-  const args = message.content.trim().split(/:+/g);
-  const cmd = args[0].slice(prefix.length).toLowerCase();
 
   if (cmd === 'gaystats') {
     gayStatistics(message);
   }
-});
 
-client.on('messageCreate', async (message) => {
-  if (!message.content.startsWith(prefix)) return;
-
-  const args = message.content.trim().split(/:+/g);
-  const cmd = args[0].slice(prefix.length).toLowerCase(); // case INsensitive, without prefix
-
-  if (cmd === 'speak') {
-    if (args[2]) return message.reply('Too many arguments.');
-    message.reply(args[1]);
-
-    const channel = message.member?.voice.channel;
-
-    if (channel) {
-      try {
-        const connection = await connectToChannel(channel);
-        connection.subscribe(player);
-        const audioFileUrl = (
-          await axios.get(
-            `
-            http: //ec2-16-170-224-19.eu-north-1.compute.amazonaws.com:3000/speak`,
-            {
-              params: {
-                text: args[1]
-              }
-            }
-          )
-      ).data; playSong(audioFileUrl); message.reply('Playing now!');
-    }
-  catch (error) {
-    console.error(error);
+  if (cmd === 'gachi') {
+    randomGachi(message);
   }
-} else {
-  message.reply('Join a voice channel then try again!');
-}
-}
 });
 
 // Login to Discord with your client's token

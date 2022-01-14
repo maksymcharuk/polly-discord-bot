@@ -17,6 +17,8 @@
     "@discordjs/opus": "^0.7.0",
     "@discordjs/rest": "0.1.0-canary.0",
     "@discordjs/voice": "^0.7.5",
+    "@google-cloud/connect-firestore": "^2.0.2",
+    "@google-cloud/storage": "^5.17.0",
     "axios": "^0.24.0",
     "cron": "^1.8.2",
     "discord-api-types": "^0.24.0",
