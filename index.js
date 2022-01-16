@@ -267,24 +267,28 @@ async function connectToChannel(channel) {
 
 async function randomGachi(message) {
   let voiceChannel = message.member.voice.channel;
-  bucket.getFiles({
-    versions: true
-  }, async function(err, files) {
-    let soundsUrls = [];
-    Object.values(files).forEach((data) => {
-      soundsUrls.push(`https://firebasestorage.googleapis.com/v0/b/${data.metadata.bucket}/o/${data.metadata.name}?alt=media&token=${data.metadata.metadata.firebaseStorageDownloadTokens}`);
-    })
-    let randomSoundUrl = soundsUrls[Math.floor(Math.random() * soundsUrls.length)];
-    const connection = await connectToChannel(voiceChannel);
-    connection.subscribe(player);
-    playSong(randomSoundUrl);
-
-    // player.on(AudioPlayerStatus.Idle, (status) => {
-    //   if (connection.state.status !== 'destroyed') {
-    //     connection.destroy();
-    //   }
-    // });
-  });
+  if (voiceChannel) {
+    bucket.getFiles({
+      versions: true
+    }, async function(err, files) {
+      let soundsUrls = [];
+      Object.values(files).forEach((data) => {
+        soundsUrls.push(`https://firebasestorage.googleapis.com/v0/b/${data.metadata.bucket}/o/${data.metadata.name}?alt=media&token=${data.metadata.metadata.firebaseStorageDownloadTokens}`);
+      })
+      let randomSoundUrl = soundsUrls[Math.floor(Math.random() * soundsUrls.length)];
+      const connection = await connectToChannel(voiceChannel);
+      connection.subscribe(player);
+      playSong(randomSoundUrl);
+  
+      // player.on(AudioPlayerStatus.Idle, (status) => {
+      //   if (connection.state.status !== 'destroyed') {
+      //     connection.destroy()
+      //   }
+      // });
+    });
+  } else {
+    message.reply('you should join voice channel to use this command')
+  }
 }
 
 // When the client is ready, run this code (only once)
